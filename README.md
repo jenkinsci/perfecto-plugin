@@ -21,7 +21,7 @@ Perfecto Jenkins Plugin provides the ability to auto-create/ re-use existing Per
 	b.	Select option: “Perfecto” under Kind dropdown in Add Credentials window.</br>
 	c.	Provide Your Cloud Name, Username and Security Token and click on Add.</br>
 	
-	<img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/cred.png" height="360" width="760"/></br>
+	<img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/cred.png" height="260" width="760"/></br>
 
 7.	Provide Perfecto Connect Path in Perfecto Connect Path text field. </br>
 	a.	E.g.: - /Users/Mymac/Downloads</br>
@@ -31,10 +31,10 @@ Perfecto Jenkins Plugin provides the ability to auto-create/ re-use existing Per
 
 ## Screenshots
 ### Mac
-<img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/mac.png" height="360" width="760"/>
+<img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/mac.png" height="260" width="760"/>
 	 
 ### Windows
-<img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/win.png" height="360" width="760"/>
+<img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/win.png" height="260" width="760"/>
 
 ## Advanced Options
 
