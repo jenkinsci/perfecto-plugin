@@ -16,26 +16,25 @@ Perfecto Jenkins Plugin provides the ability to auto-create/ re-use existing Per
 3.	Select any project type except pipeline.</br>
 4.	Click OK.</br>
 5.	Select Perfecto Connect checkbox under Build Environment (Refer Screenshots section)</br>
-6.	Provide Your Cloud Name in Cloud Name text field – E.g.: - demo (Provide only cloud name not complete URL)</br>
-7.	Provide Your Credentials.</br>
+6.	Provide Your Credentials.</br>
 	a.	Select Add option next to Credentials dropdown and select Jenkins. </br>
 	b.	Select option: “Perfecto” under Kind dropdown in Add Credentials window.</br>
-	c.	Provide Your Security Token in Security Token text field and click on Add.</br>
+	c.	Provide Your Cloud Name, Username and Security Token and click on Add.</br>
 	
-	<img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/1.png" height="360" width="760"/></br>
+	<img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/cred.png" height="360" width="760"/></br>
 
-8.	Provide Perfecto Connect Path in Perfecto Connect Path text field. </br>
+7.	Provide Perfecto Connect Path in Perfecto Connect Path text field. </br>
 	a.	E.g.: - /Users/Mymac/Downloads</br>
-9.	Provide Perfecto Connect File Name in Perfecto Connect File Name text field.</br>
+8.	Provide Perfecto Connect File Name in Perfecto Connect File Name text field.</br>
 	a.	E.g.: - Mac – perfectoconnect</br>
 	b.	E.g.: - Windows – perfectoconnect64.exe or perfectoconnect32.exe</br>
 
 ## Screenshots
 ### Mac
-<img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/2.png" height="360" width="760"/>
+<img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/mac.png" height="360" width="760"/>
 	 
 ### Windows
-<img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/3.png" height="360" width="760"/>
+<img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/win.png" height="360" width="760"/>
 
 ## Advanced Options
 
