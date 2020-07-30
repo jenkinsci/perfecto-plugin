@@ -19,7 +19,7 @@
 		<plugins.credentials.version>2.1.16</plugins.credentials.version>
 	</properties>
 	<groupId>io.jenkins.plugins</groupId>
-	<artifactId>Perfecto</artifactId>
+	<artifactId>perfecto</artifactId>
 	<version>1.0</version>
 	<packaging>hpi</packaging>
 	<name>Perfecto Plugin</name>
