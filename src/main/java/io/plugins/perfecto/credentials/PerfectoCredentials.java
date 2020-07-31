@@ -49,6 +49,7 @@ import hudson.security.ACL;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
 import io.plugins.perfecto.PerfectoBuildWrapper;
+import jenkins.model.Jenkins;
 
 public class PerfectoCredentials extends BaseStandardCredentials implements StandardUsernamePasswordCredentials {
 
@@ -97,9 +98,6 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 	}
 
 	public static FormValidation testAuthentication(final String username, final String cloudName, final String apikey) {
-		if (StringUtils.isBlank(username) || StringUtils.isBlank(cloudName) || StringUtils.isBlank(apikey)) {
-			return FormValidation.ok(ERR_EMPTY_AUTH);
-		}
 		String checkConnectionURL = "https://"+cloudName+".perfectomobile.com/services/users/"+username+"?operation=info&securityToken="+apikey;
 		System.out.println(checkConnectionURL);
 		URL myURL;
@@ -115,14 +113,14 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 				if(conn != null) {
 					conn.disconnect();
 				}
-				return FormValidation.ok(ERR_INVALID_AUTH+", HTTP error code : "+response);
+				return FormValidation.error(ERR_INVALID_AUTH+", HTTP error code : "+response);
 			}
 		}catch(Exception e) {
 			if(conn != null) {
 				conn.disconnect();
 			}
 			System.out.println("exception: "+e);
-			return FormValidation.ok(ERR_INVALID_AUTH);
+			return FormValidation.error(ERR_INVALID_AUTH);
 		}
 		if(conn != null) {
 			conn.disconnect();
@@ -194,6 +192,9 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 
 		public final FormValidation doAuthenticate(@QueryParameter("userName") String userName, @QueryParameter("cloudName") String cloudName,
 				@QueryParameter("apiKey") String apiKey) {
+			if (StringUtils.isBlank(userName) || StringUtils.isBlank(cloudName) || StringUtils.isBlank(apiKey)) {
+				return FormValidation.error(ERR_EMPTY_AUTH);
+			}
 			return testAuthentication(userName, cloudName, apiKey);
 		}
 
