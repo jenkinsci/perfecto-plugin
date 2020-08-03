@@ -58,27 +58,4 @@ public final class PerfectoEnvironmentUtil {
 		return buildWrapper;
 	}
 
-	//    /**
-	//     *
-	//     * @param build the Jenkins build
-	//     * @return String representing the Jenkins build
-	//     */
-	//    @Nonnull
-	//    public static String getBuildName(Run<?, ?> build) {
-	//        while (build != null && build instanceof MavenBuild && ((MavenBuild) build).getParentBuild() != null) {
-	//            build = ((MavenBuild) build).getParentBuild();
-	//        }
-	//        if (build == null) { return ""; }
-	//
-	//        String displayName = build.getFullDisplayName();
-	//        String buildName = build.getDisplayName();
-	//        StringBuilder builder = new StringBuilder(displayName);
-	//        //for multi-config projects, the full display name contains the build name twice
-	//        //detect this and replace the second occurance with the build number
-	//        if (StringUtils.countMatches(displayName, buildName) > 1) {
-	//            builder.replace(displayName.lastIndexOf(buildName), displayName.length(), "#" + build.getNumber());
-	//        }
-	//        return builder.toString();
-	//    }
-
 }

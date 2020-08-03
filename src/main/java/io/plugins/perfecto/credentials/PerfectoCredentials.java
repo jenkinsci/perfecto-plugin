@@ -1,11 +1,8 @@
 package io.plugins.perfecto.credentials;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Date;
@@ -20,6 +17,7 @@ import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.verb.POST;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -49,8 +47,13 @@ import hudson.security.ACL;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
 import io.plugins.perfecto.PerfectoBuildWrapper;
-import jenkins.model.Jenkins;
 
+
+/**
+ * Perfecto credentials class
+ *
+ * @author Dushyantan Satike, Genesis
+ */
 public class PerfectoCredentials extends BaseStandardCredentials implements StandardUsernamePasswordCredentials {
 
 
@@ -65,6 +68,7 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 	 */
 
 	protected ShortLivedConfig shortLivedConfig;
+	
 
 	@DataBoundConstructor
 	public PerfectoCredentials(@CheckForNull CredentialsScope scope, @CheckForNull String id, @CheckForNull String userName, @CheckForNull String cloudName,
@@ -190,6 +194,7 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 			return "icon-perfecto-credential";
 		}
 
+		@POST
 		public final FormValidation doAuthenticate(@QueryParameter("userName") String userName, @QueryParameter("cloudName") String cloudName,
 				@QueryParameter("apiKey") String apiKey) {
 			if (StringUtils.isBlank(userName) || StringUtils.isBlank(cloudName) || StringUtils.isBlank(apiKey)) {

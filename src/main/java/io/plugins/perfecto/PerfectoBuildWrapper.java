@@ -1,37 +1,51 @@
 package io.plugins.perfecto;
 
-import com.cloudbees.plugins.credentials.CredentialsDescriptor;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.io.FileUtils;
+import org.jenkins_ci.plugins.run_condition.RunCondition;
+import org.jenkinsci.Symbol;
+import org.kohsuke.stapler.AncestorInPath;
+import org.kohsuke.stapler.DataBoundConstructor;
+
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernameListBoxModel;
 import com.google.common.base.Strings;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import hudson.*;
-import hudson.model.*;
+import hudson.Extension;
+import hudson.Launcher;
+import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
+import hudson.model.BuildListener;
+import hudson.model.BuildableItemWithBuildWrappers;
+import hudson.model.ItemGroup;
 import hudson.model.listeners.ItemListener;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
 import hudson.util.ListBoxModel;
 import io.plugins.perfecto.credentials.PerfectoCredentials;
 import jenkins.model.Jenkins;
-import org.jenkins_ci.plugins.run_condition.RunCondition;
-import org.kohsuke.stapler.AncestorInPath;
-import org.kohsuke.stapler.DataBoundConstructor;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Serializable;
-import java.util.*;
-import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 
 /**
  * {@link BuildWrapper} that sets up the Perfecto connect tunnel and populates environment variable.
  *
- * @author Dushyantan Satike
+ * @author Dushyantan Satike, Genesis
  */
 public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 
@@ -78,7 +92,7 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 	private String pcParameters;
 
 	private String reuseTunnelId;
-	
+
 	private PerfectoCredentials credentials;
 
 	@SuppressFBWarnings("SE_BAD_FIELD")
@@ -135,60 +149,47 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 	}
 
 	private String getTunnelId(String perfectoConnectLocation, String cloudName, String apiKey, BuildListener listener) throws IOException {
-		String tunnelId;
-		boolean isWindows = System.getProperty("os.name")
-				.toLowerCase().startsWith("windows");
+		String tunnelId = null;
+		boolean isWindows = hudson.Functions.isWindows();
 		Process process;
+		if(perfectoConnectLocation.endsWith("/")||perfectoConnectLocation.endsWith("\\")) {
+			pcLocation = perfectoConnectLocation+perfectoConnectFile;
+		}else {
+			pcLocation = perfectoConnectLocation+File.separator+perfectoConnectFile;
+		}
+		String baseCommand = pcLocation.trim()+" start -c "+cloudName.trim()+".perfectomobile.com -s "+apiKey.trim();
+		listener.getLogger().println(pcLocation.trim()+" start -c "+cloudName.trim()+".perfectomobile.com -s <<TOKEN>> "+pcParameters.trim());
 		if (isWindows) {
-
-			if(perfectoConnectLocation.endsWith("/")||perfectoConnectLocation.endsWith("\\")) {
-				pcLocation = perfectoConnectLocation+perfectoConnectFile;
-			}else {
-				pcLocation = perfectoConnectLocation+File.separator+perfectoConnectFile;
-			}
-			String baseCommand = pcLocation.trim()+" start -c "+cloudName.trim()+".perfectomobile.com -s "+apiKey.trim();
-			listener.getLogger().println(pcLocation.trim()+" start -c "+cloudName.trim()+".perfectomobile.com -s <<TOKEN>>");
 			String cmdArgs[] = {"cmd.exe", "/c", baseCommand+" "+pcParameters.trim()};
 			process = new ProcessBuilder(cmdArgs).redirectErrorStream(true).start();
-			InputStream is = process.getInputStream();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-			tunnelId = reader.readLine();
-			if(tunnelId == null) {
-				throw new RuntimeException("Unable to create tunnel ID. Kindly cross check your parameters or raise a Perfecto support case.");
-			}
-			if(tunnelId.contains("not recognized as an internal or external command")) {
-				throw new RuntimeException("Perfecto Connect Path and Name is not Correct. Path Provided : '"+pcLocation+"'");
-			}
-			if(tunnelId.contains("Can't start Perfecto Connect")||tunnelId.contains("failed to start")) {
-				throw new RuntimeException(tunnelId);
-			}
 		} else {
-
-			if(perfectoConnectLocation.endsWith("/")||perfectoConnectLocation.endsWith("\\")) {
-				pcLocation = perfectoConnectLocation+perfectoConnectFile;
-			}else {
-				pcLocation = perfectoConnectLocation+File.separator+perfectoConnectFile;
+			String cmdArgs[] = {"bash", "-c", "(cd "+perfectoConnectLocation+"; "+baseCommand+" "+pcParameters.trim()+")"};
+			process = Runtime.getRuntime().exec(cmdArgs);
+		}
+		InputStream is = process.getInputStream();
+		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+		String s = null;
+		while ((s = reader.readLine()) != null) {
+			listener.getLogger().println(s);
+			Matcher m = Pattern.compile("^[A-Za-z0-9-]+$").matcher(s);
+			if (m.find()) {
+				tunnelId = m.group(0);
+				listener.getLogger().println("Tunnel Id : "+tunnelId);
 			}
-			String baseCommand = pcLocation.trim()+" start -c "+cloudName.trim()+".perfectomobile.com -s "+apiKey.trim();
-			listener.getLogger().println(pcLocation.trim()+" start -c "+cloudName.trim()+".perfectomobile.com -s <<TOKEN>>");
-			String cmdArgs[] = {"bash", "-c", baseCommand+" "+pcParameters.trim()};
-			process = new ProcessBuilder(cmdArgs).redirectErrorStream(true).start();
-			InputStream is = process.getInputStream();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-			tunnelId = reader.readLine();
-			listener.getLogger().println("Tunnel Id : "+tunnelId);
-			if(tunnelId == null) {
-				throw new RuntimeException("Unable to create tunnel ID. Kindly cross check your parameters or raise a Perfecto support case.");
-			}
-			if(tunnelId.contains("bash: ")) {
+			if(s.contains("bash: ")) {
 				throw new RuntimeException("Perfecto Connect Path and Name is not Correct. Path Provided : '"+pcLocation+"'");
 			}
-			if(tunnelId.contains("Can't start Perfecto Connect")) {
+			if(s.contains("Can't start Perfecto Connect")||s.contains("failed to start")) {
 				throw new RuntimeException(tunnelId);
 			}
 		}
+		reader.close();
+		if(tunnelId == null) {
+			throw new RuntimeException("Unable to create tunnel ID. Kindly cross check your parameters or raise a Perfecto support case.");
+		}
 		return tunnelId;
 	}
+
 
 	/**
 	 * {@inheritDoc}
@@ -204,7 +205,7 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 
 		credentials = PerfectoCredentials.getPerfectoCredentials(build, this);
 		CredentialsProvider.track(build, credentials);
-		
+
 		if(credentials==null && !reuseTunnelId.contains("-"))
 			throw new RuntimeException("Credentials missing......");
 
@@ -312,8 +313,9 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 		this.pcParameters = pcParameters;
 	}
 
-	  @Extension(ordinal = 1.0D)
-	    public static class DescriptorImpl extends BuildWrapperDescriptor {
+	@Extension(ordinal = 1.0D)
+	@Symbol("withPerfecto")
+	public static class DescriptorImpl extends BuildWrapperDescriptor {
 		/**
 		 * @return text to be displayed within Jenkins job configuration
 		 */
@@ -326,9 +328,23 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 		 * @param context    Project/parent
 		 * @return the list of supported credentials
 		 */
+		//		public ListBoxModel doFillCredentialIdItems(final @AncestorInPath ItemGroup<?> context, @QueryParameter String credentialId) {
+		//			Jenkins jenkins = Jenkins.getInstanceOrNull();
+		//			if (jenkins == null)
+		//				return null;
+		//
+		//			if (!jenkins.hasPermission(Jenkins.ADMINISTER))
+		//				return new StandardUsernameListBoxModel().includeCurrentValue(credentialId);
+		//
+		//			if (context != null && !((AccessControlled) context).hasPermission(Item.CONFIGURE)) {
+		//				return new StandardUsernameListBoxModel();
+		//			}
 		public ListBoxModel doFillCredentialIdItems(final @AncestorInPath ItemGroup<?> context) {
 			return new StandardUsernameListBoxModel()
 					.withAll(PerfectoCredentials.all(context));
+			//			return new StandardUsernameListBoxModel()
+			//					.includeAs(ACL.SYSTEM, context, PerfectoCredentials.class)
+			//					.includeCurrentValue(credentialId);
 		}
 
 		@Override
