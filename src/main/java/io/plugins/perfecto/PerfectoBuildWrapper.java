@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -21,7 +22,9 @@ import org.jenkins_ci.plugins.run_condition.RunCondition;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 
+import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernameListBoxModel;
 import com.google.common.base.Strings;
@@ -33,10 +36,14 @@ import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
 import hudson.model.BuildableItemWithBuildWrappers;
+import hudson.model.Item;
 import hudson.model.ItemGroup;
 import hudson.model.listeners.ItemListener;
+import hudson.security.ACL;
+import hudson.security.AccessControlled;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
+import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import io.plugins.perfecto.credentials.PerfectoCredentials;
 import jenkins.model.Jenkins;
@@ -326,27 +333,46 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 
 		/**
 		 * @param context    Project/parent
+		 * @param credentialId credentials
 		 * @return the list of supported credentials
 		 */
-		//		public ListBoxModel doFillCredentialIdItems(final @AncestorInPath ItemGroup<?> context, @QueryParameter String credentialId) {
-		//			Jenkins jenkins = Jenkins.getInstanceOrNull();
-		//			if (jenkins == null)
-		//				return null;
-		//
-		//			if (!jenkins.hasPermission(Jenkins.ADMINISTER))
-		//				return new StandardUsernameListBoxModel().includeCurrentValue(credentialId);
-		//
-		//			if (context != null && !((AccessControlled) context).hasPermission(Item.CONFIGURE)) {
-		//				return new StandardUsernameListBoxModel();
-		//			}
-		public ListBoxModel doFillCredentialIdItems(final @AncestorInPath ItemGroup<?> context) {
+		public ListBoxModel doFillCredentialIdItems(final @AncestorInPath ItemGroup<?> context, @QueryParameter String credentialId) {
+			Jenkins jenkins = Jenkins.getInstanceOrNull();
+			if (jenkins == null)
+				return null;
+
+			if (!jenkins.hasPermission(Jenkins.ADMINISTER))
+				return new StandardUsernameListBoxModel().includeCurrentValue(credentialId);
+
+			if (context != null && !((AccessControlled) context).hasPermission(Item.CONFIGURE)) {
+				return new StandardUsernameListBoxModel();
+			}
+			
 			return new StandardUsernameListBoxModel()
-					.withAll(PerfectoCredentials.all(context));
-			//			return new StandardUsernameListBoxModel()
-			//					.includeAs(ACL.SYSTEM, context, PerfectoCredentials.class)
-			//					.includeCurrentValue(credentialId);
+					.includeAs(ACL.SYSTEM, context, PerfectoCredentials.class)
+					.includeCurrentValue(credentialId);
 		}
 
+		/**
+         * Validates Credentials if exists
+         *
+         * @param context  Project/parent
+         * @param item  Basic configuration unit in Hudson
+         * @param value Any conditional parameter(here id of the credential selected)
+         * @return FormValidation
+         */
+        public FormValidation doCheckCredentialsId(@AncestorInPath Item item, @QueryParameter String value) {
+        	if (item != null && value != null && value.trim().isEmpty()) {
+                return FormValidation.ok();
+            }
+
+            if (value == null || CredentialsProvider.listCredentials(PerfectoCredentials.class, item, ACL.SYSTEM, Collections.emptyList(), CredentialsMatchers.withId(value)).isEmpty()) {
+                return FormValidation.error("Select a perfecto kind credentials with cloudName, userName and securityToken.");
+            }
+
+            return FormValidation.ok();
+        }
+        
 		@Override
 		public boolean isApplicable(AbstractProject<?, ?> item) {
 			// TODO Auto-generated method stub
