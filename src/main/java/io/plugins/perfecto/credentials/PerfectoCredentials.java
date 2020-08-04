@@ -36,6 +36,7 @@ import com.google.common.base.Strings;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
+import hudson.Util;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.AbstractProject;
@@ -47,6 +48,7 @@ import hudson.security.ACL;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
 import io.plugins.perfecto.PerfectoBuildWrapper;
+import jenkins.model.Jenkins;
 
 
 /**
@@ -68,7 +70,7 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 	 */
 
 	protected ShortLivedConfig shortLivedConfig;
-	
+
 
 	@DataBoundConstructor
 	public PerfectoCredentials(@CheckForNull CredentialsScope scope, @CheckForNull String id, @CheckForNull String userName, @CheckForNull String cloudName,
@@ -203,8 +205,34 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 			return testAuthentication(userName, cloudName, apiKey);
 		}
 
-	}
+		@POST
+		public FormValidation doCheckCloudName(@QueryParameter String value) {
+			Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+			if (Util.fixEmptyAndTrim(value) == null) {
+				return FormValidation.error("cloudName cannot be empty");
+			}
+			return FormValidation.ok();
+		}
 
+		@POST
+		public FormValidation doCheckApiKey(@QueryParameter("apiKey") String value) {
+			System.out.println(value);
+			Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+			if (Util.fixEmptyAndTrim(value) == null) {
+				return FormValidation.error("apiKey cannot be empty");
+			}
+			return FormValidation.ok();
+		}
+
+		@POST
+		public FormValidation doCheckUserName(@QueryParameter String value) {
+			Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+			if (Util.fixEmptyAndTrim(value) == null) {
+				return FormValidation.error("userName cannot be empty");
+			}
+			return FormValidation.ok();
+		}
+	}
 
 	public static String migrateToCredentials(String username, String cloudName, String accessKey, String migratedFrom) throws InterruptedException, IOException {
 		final List<PerfectoCredentials> credentialsForDomain = PerfectoCredentials.all((Item) null);

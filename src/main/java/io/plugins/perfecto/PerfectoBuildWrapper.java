@@ -23,6 +23,7 @@ import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.verb.POST;
 
 import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
@@ -32,6 +33,7 @@ import com.google.common.base.Strings;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import hudson.Launcher;
+import hudson.Util;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
@@ -336,7 +338,9 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 		 * @param credentialId credentials
 		 * @return the list of supported credentials
 		 */
+		@POST
 		public ListBoxModel doFillCredentialIdItems(final @AncestorInPath ItemGroup<?> context, @QueryParameter String credentialId) {
+			Jenkins.get().checkPermission(Jenkins.ADMINISTER);
 			Jenkins jenkins = Jenkins.getInstanceOrNull();
 			if (jenkins == null)
 				return null;
@@ -347,32 +351,59 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 			if (context != null && !((AccessControlled) context).hasPermission(Item.CONFIGURE)) {
 				return new StandardUsernameListBoxModel();
 			}
-			
+
 			return new StandardUsernameListBoxModel()
 					.includeAs(ACL.SYSTEM, context, PerfectoCredentials.class)
 					.includeCurrentValue(credentialId);
 		}
 
 		/**
-         * Validates Credentials if exists
-         *
-         * @param context  Project/parent
-         * @param item  Basic configuration unit in Hudson
-         * @param value Any conditional parameter(here id of the credential selected)
-         * @return FormValidation
-         */
-        public FormValidation doCheckCredentialsId(@AncestorInPath Item item, @QueryParameter String value) {
-        	if (item != null && value != null && value.trim().isEmpty()) {
-                return FormValidation.ok();
-            }
+		 * Validates Credential if exists
+		 *
+		 * @param context  Project/parent
+		 * @param item  Basic configuration unit in Hudson
+		 * @param value Any conditional parameter(here id of the credential selected)
+		 * @return FormValidation
+		 */
+		@POST
+		public FormValidation doCheckCredentialId(@AncestorInPath Item item, @QueryParameter String value) {
+			Jenkins.get().checkPermission(Jenkins.ADMINISTER); 
+			if (item != null && !value.trim().isEmpty()) {
+				return FormValidation.ok();
+			}
 
-            if (value == null || CredentialsProvider.listCredentials(PerfectoCredentials.class, item, ACL.SYSTEM, Collections.emptyList(), CredentialsMatchers.withId(value)).isEmpty()) {
-                return FormValidation.error("Select a perfecto kind credentials with cloudName, userName and securityToken.");
-            }
+			if (value == null || value.isEmpty()|| CredentialsProvider.listCredentials(PerfectoCredentials.class, item, ACL.SYSTEM, Collections.emptyList(), CredentialsMatchers.withId(value)).isEmpty()) {
+				return FormValidation.error("Select a perfecto kind credentials with cloudName, userName and securityToken.");
+			}
+			return FormValidation.ok();
+		}
+		
+		@POST
+		public FormValidation doCheckPerfectoConnectLocation(@QueryParameter String value, @AncestorInPath Item item) {
+			if (item == null) { 
+			    return FormValidation.ok();
+			  }
+			  item.checkPermission(Item.CONFIGURE);
 
-            return FormValidation.ok();
-        }
-        
+			if (Util.fixEmptyAndTrim(value) == null) {
+				return FormValidation.error("Perfecto connect location cannot be empty");
+			}
+			return FormValidation.ok();
+		}
+		
+		@POST
+		public FormValidation doCheckPerfectoConnectFile(@QueryParameter String value, @AncestorInPath Item item) {
+			if (item == null) { 
+			    return FormValidation.ok();
+			  }
+			  item.checkPermission(Item.CONFIGURE);
+
+			if (Util.fixEmptyAndTrim(value) == null) {
+				return FormValidation.error("Perfecto connect file name cannot be empty");
+			}
+			return FormValidation.ok();
+		}
+
 		@Override
 		public boolean isApplicable(AbstractProject<?, ?> item) {
 			// TODO Auto-generated method stub

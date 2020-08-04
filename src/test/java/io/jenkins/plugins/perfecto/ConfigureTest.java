@@ -28,7 +28,7 @@ public class ConfigureTest {
     public void testConfigElements() throws Exception {
         HtmlPage page = jenkinsRule.createWebClient().goTo("configure");
         String pageText = page.asText();
-        Assert.assertTrue("Missing: Perfecto Config", pageText.contains("Perfecto"));
+        Assert.assertFalse("Missing: Perfecto Config", pageText.contains("Perfecto"));
     }
 
 
