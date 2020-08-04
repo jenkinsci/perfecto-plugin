@@ -54,7 +54,7 @@ You can provide Advanced options such as Perfecto Connect Additional Parameters,
 
 	<img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/5.png" height="360" width="760"/></br>
  
-## Perfecto Connect Pipeline Sample 
+## Perfecto Connect Pipeline Sample: 
 ### Steps
 
 1.	Create a new Pipeline and add the below code to pipeline script text field.</br>
