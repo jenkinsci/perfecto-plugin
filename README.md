@@ -96,5 +96,5 @@ String perfectoConnectPath = "/Users/myMac/Downloads/perfectoconnect";
  
 ### Gradle Sample
 
-<img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/7.png" height="360" width="760"/>
+<img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/7.png" height="360" width="800"/>
  
