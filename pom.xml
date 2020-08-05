@@ -27,7 +27,7 @@
 	<description>This Perfecto Plugin provides the ability to auto-create/ re-use existing perfecto connect tunnel-id in build environment.</description>
 
 
-	<url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
+	<url>https://developers.perfectomobile.com/display/PD/Jenkins+plugin</url>
 	<scm>
 		<connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
 		<developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
@@ -45,10 +45,17 @@
 		<developer>
 			<id>dsatike-perfecto</id>
 			<name>Dushyantan Satike</name>
+			<email>dsatike@perforce.com</email>
 		</developer>
 		<developer>
 			<id>genesisthomas</id>
 			<name>Genesis Thomas</name>
+			<email>gthomas@perforce.com</email>
+		</developer>
+		<developer>
+			<id>perfectojenkins</id>
+			<name>Eran Kinsbruner</name>
+			<email>ekinsbruner@perforce.com</email>
 		</developer>
 	</developers>
 

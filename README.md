@@ -4,13 +4,33 @@
 
 Perfecto Jenkins Plugin provides the ability to auto-create/ re-use existing Perfecto Connect tunnel-id in build environment. 
 
+
+# Table of Contents
+
+- [Perfecto Jenkins Plugin](#perfecto-jenkins-plugin)
+  - [How to use](#how-to-use)
+  - [Prerequisites](#prerequisites)
+    - [Steps to Enable the plugin](#steps-to-enable-the-plugin)
+  - [Screenshots](#screenshots)
+    - [Mac](#mac)
+    - [Windows](#windows)
+  - [Advanced Options](#advanced-options)
+  - [Steps to Stop Perfecto Connect](#steps-to-stop-perfecto-connect)
+  - [Perfecto Connect Pipeline Sample:](#perfecto-connect-pipeline-sample)
+    - [Steps](#steps)
+  - [Usage](#usage)
+    - [Maven Sample](#maven-sample)
+    - [Gradle Sample](#gradle-sample)
+    
 ## How to use
-### Prerequisites
+
+## Prerequisites
 
 * Download Perfecto Connect client, extract to any folder.
 * Generate Perfecto Security Token (if not generated already) 
 
 ### Steps to Enable the plugin 
+
 1.	Click New Item in Jenkins home page.</br>
 2.	Enter Your preferred Item name.</br>
 3.	Select any project type except pipeline.</br>
@@ -55,6 +75,7 @@ You can provide Advanced options such as Perfecto Connect Additional Parameters,
 	<img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/5.png" height="360" width="760"/></br>
  
 ## Perfecto Connect Pipeline Sample: 
+
 ### Steps
 
 1.	Create a new Pipeline and add the below code to pipeline script text field.</br>
@@ -89,7 +110,8 @@ String perfectoConnectPath = "/Users/myMac/Downloads/perfectoconnect";
 }
 ```
 
-## Perfecto Connect Usage in Selenium/Appium
+## Usage
+
 ### Maven Sample
 
 <img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/6.png" height="360" width="820"/>

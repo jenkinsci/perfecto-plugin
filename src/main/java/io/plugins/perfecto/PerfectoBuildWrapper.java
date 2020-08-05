@@ -186,15 +186,18 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 				listener.getLogger().println("Tunnel Id : "+tunnelId);
 			}
 			if(s.contains("bash: ")) {
-				throw new RuntimeException("Perfecto Connect Path and Name is not Correct. Path Provided : '"+pcLocation+"'");
+				listener.fatalError("Perfecto Connect Path and Name is not Correct. Path Provided : '"+pcLocation+"'");
+				throw new IOException("Perfecto Connect Path and Name is not Correct. Path Provided : '"+pcLocation+"'");
 			}
 			if(s.contains("Can't start Perfecto Connect")||s.contains("failed to start")) {
-				throw new RuntimeException(tunnelId);
+				listener.fatalError(tunnelId);
+				throw new IOException(tunnelId);
 			}
 		}
 		reader.close();
 		if(tunnelId == null) {
-			throw new RuntimeException("Unable to create tunnel ID. Kindly cross check your parameters or raise a Perfecto support case.");
+			listener.fatalError("Unable to create tunnel ID. Kindly cross check your parameters or raise a Perfecto support case.");
+			throw new IOException("Unable to create tunnel ID. Kindly cross check your parameters or raise a Perfecto support case.");
 		}
 		return tunnelId;
 	}
@@ -215,9 +218,11 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 		credentials = PerfectoCredentials.getPerfectoCredentials(build, this);
 		CredentialsProvider.track(build, credentials);
 
-		if(credentials==null && !reuseTunnelId.contains("-"))
-			throw new RuntimeException("Credentials missing......");
-
+		if(credentials==null && !reuseTunnelId.contains("-")) {
+			listener.fatalError("Credentials missing......");
+			throw new IOException("Credentials missing......");
+		}
+		
 		if(!reuseTunnelId.contains("-")) {
 			final String apiKey = credentials.getPassword().getPlainText();
 			tunnelId = getTunnelId(perfectoConnectLocation, credentials.getCloudName(), apiKey, listener);
@@ -377,26 +382,26 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 			}
 			return FormValidation.ok();
 		}
-		
+
 		@POST
 		public FormValidation doCheckPerfectoConnectLocation(@QueryParameter String value, @AncestorInPath Item item) {
 			if (item == null) { 
-			    return FormValidation.ok();
-			  }
-			  item.checkPermission(Item.CONFIGURE);
+				return FormValidation.ok();
+			}
+			item.checkPermission(Item.CONFIGURE);
 
 			if (Util.fixEmptyAndTrim(value) == null) {
 				return FormValidation.error("Perfecto connect location cannot be empty");
 			}
 			return FormValidation.ok();
 		}
-		
+
 		@POST
 		public FormValidation doCheckPerfectoConnectFile(@QueryParameter String value, @AncestorInPath Item item) {
 			if (item == null) { 
-			    return FormValidation.ok();
-			  }
-			  item.checkPermission(Item.CONFIGURE);
+				return FormValidation.ok();
+			}
+			item.checkPermission(Item.CONFIGURE);
 
 			if (Util.fixEmptyAndTrim(value) == null) {
 				return FormValidation.error("Perfecto connect file name cannot be empty");
