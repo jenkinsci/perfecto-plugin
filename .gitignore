@@ -14,3 +14,4 @@ src/main/java/hudson/plugins/perfecto/BuildUtils.java
 .settings/
 *.success
 .DS_Store
+src/main/java/io/plugins/perfecto/BuildUtils.java
