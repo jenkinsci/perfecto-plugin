@@ -2,15 +2,11 @@ package io.plugins.perfecto;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -18,7 +14,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.FileUtils;
 import org.jenkins_ci.plugins.run_condition.RunCondition;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.AncestorInPath;
@@ -41,7 +36,6 @@ import hudson.model.BuildListener;
 import hudson.model.BuildableItemWithBuildWrappers;
 import hudson.model.Item;
 import hudson.model.ItemGroup;
-import hudson.model.Queue;
 import hudson.model.listeners.ItemListener;
 import hudson.security.ACL;
 import hudson.security.AccessControlled;
@@ -331,7 +325,7 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 		/**
 		 *Fills credentials
 		 *
-		 * @param context  ItemGroup<?>
+		 * @param context  ItemGroup
 		 * @param credentialId credentials
 		 * @return the list of supported credentials
 		 */
