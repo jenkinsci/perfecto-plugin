@@ -116,20 +116,16 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 			int response = conn.getResponseCode();
 			System.out.println("response"+response);
 			if (response != 200) {
-				if(conn != null) {
-					conn.disconnect();
-				}
+				conn.disconnect();
 				return FormValidation.error(ERR_INVALID_AUTH+", HTTP error code : "+response);
 			}
+			conn.disconnect();
 		}catch(Exception e) {
 			if(conn != null) {
 				conn.disconnect();
 			}
 			System.out.println("exception: "+e);
 			return FormValidation.error(ERR_INVALID_AUTH);
-		}
-		if(conn != null) {
-			conn.disconnect();
 		}
 		System.out.println("success");
 		return FormValidation.ok(OK_VALID_AUTH);

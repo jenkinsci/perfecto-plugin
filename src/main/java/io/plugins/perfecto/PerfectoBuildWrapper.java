@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,6 +41,7 @@ import hudson.model.BuildListener;
 import hudson.model.BuildableItemWithBuildWrappers;
 import hudson.model.Item;
 import hudson.model.ItemGroup;
+import hudson.model.Queue;
 import hudson.model.listeners.ItemListener;
 import hudson.security.ACL;
 import hudson.security.AccessControlled;
@@ -63,10 +65,6 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 	 */
 	private static final Logger logger = Logger.getLogger(PerfectoBuildWrapper.class.getName());
 
-	//	/**
-	//	 * Environment variable key which contains the Perfecto user name.
-	//	 */
-	//	public static final String PERFECTO_USER = "perfectoUser";
 	/**
 	 * Environment variable key which contains the Perfecto Security token.
 	 */
@@ -111,7 +109,7 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 	 */
 	private String credentialId;
 
-	private static String tunnelId;
+	private String tunnelId;
 
 	private String perfectoConnectFile;
 
@@ -127,7 +125,6 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 	 * Constructs a new instance using data entered on the job configuration screen.
 	 * @param condition                 allows users to define rules which enable Perfecto Connect
 	 * @param credentialId              Which credential a build should use
-	 * @param cloudName            		perfecto's cloud name
 	 * @param tunnelIdCustomName        Custom value for tunnel Id environment variable name.
 	 * @param pcParameters              Perfecto Connect parameters
 	 * @param perfectoConnectLocation   Perfecto connect location
@@ -176,7 +173,7 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 			process = Runtime.getRuntime().exec(cmdArgs);
 		}
 		InputStream is = process.getInputStream();
-		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+		BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
 		String s = null;
 		while ((s = reader.readLine()) != null) {
 			listener.getLogger().println(s);
@@ -222,7 +219,7 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 			listener.fatalError("Credentials missing......");
 			throw new IOException("Credentials missing......");
 		}
-		
+
 		if(!reuseTunnelId.contains("-")) {
 			final String apiKey = credentials.getPassword().getPlainText();
 			tunnelId = getTunnelId(perfectoConnectLocation, credentials.getCloudName(), apiKey, listener);
@@ -240,13 +237,6 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 			@Override
 			public void buildEnvVars(Map<String, String> env) {
 				logger.fine("Creating Perfecto environment variables");
-				/* New standard env name */
-				//				PerfectoEnvironmentUtil.outputEnvironmentVariable(env, PERFECTO_USER, username, true);
-				/* New standard env name */
-				//				PerfectoEnvironmentUtil.outputEnvironmentVariable(env, PERFECTO_SECURITY_TOKEN, apiKey, true);
-				//
-				//				PerfectoEnvironmentUtil.outputEnvironmentVariable(env, PERFECTO_CLOUD_NAME, getCloudName(), true);
-
 				PerfectoEnvironmentUtil.outputEnvironmentVariable(env, tunnelIdCustomName, tunnelId, true);
 			}
 			/**
@@ -339,7 +329,9 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 		}
 
 		/**
-		 * @param context    Project/parent
+		 *Fills credentials
+		 *
+		 * @param context  ItemGroup<?>
 		 * @param credentialId credentials
 		 * @return the list of supported credentials
 		 */
@@ -350,10 +342,10 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 			if (jenkins == null)
 				return null;
 
-			if (!jenkins.hasPermission(Jenkins.ADMINISTER))
+			if (context == null || !jenkins.hasPermission(Jenkins.ADMINISTER))
 				return new StandardUsernameListBoxModel().includeCurrentValue(credentialId);
 
-			if (context != null && !((AccessControlled) context).hasPermission(Item.CONFIGURE)) {
+			if (!((AccessControlled) context).hasPermission(Item.CONFIGURE)) {
 				return new StandardUsernameListBoxModel();
 			}
 
@@ -365,7 +357,6 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 		/**
 		 * Validates Credential if exists
 		 *
-		 * @param context  Project/parent
 		 * @param item  Basic configuration unit in Hudson
 		 * @param value Any conditional parameter(here id of the credential selected)
 		 * @return FormValidation
@@ -435,13 +426,15 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 				}
 			}
 			try {
-				this.credentialId = PerfectoCredentials.migrateToCredentials(
-						credentials.getUsername(),
-						credentials.getCloudName(),
-						credentials.getApiKey().getPlainText(),
-						"Global"
-						);
-				return true;
+				if (credentials != null) {
+					this.credentialId = PerfectoCredentials.migrateToCredentials(
+							credentials.getUsername(),
+							credentials.getCloudName(),
+							credentials.getApiKey().getPlainText(),
+							"Global"
+							);
+					return true;
+				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			} catch (IOException e) {

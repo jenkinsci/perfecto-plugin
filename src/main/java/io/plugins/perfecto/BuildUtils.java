@@ -8,7 +8,7 @@ public class BuildUtils
 
     // ------------------------------------------------------------------------------------------------------- Constants
 
-    private static final String version = "1.0";
+    private static final String version = "1.0-SNAPSHOT";
 
     // -------------------------------------------------------------------------------------------------- Public Methods
     public static String getCurrentVersion()
