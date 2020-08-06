@@ -1,4 +1,4 @@
-<img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/perfecto.jpg" height="75" width="300"/>
+<img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/perfecto.jpg" height="75" width="300"/>
 
 # Perfecto Jenkins Plugin
 
@@ -41,7 +41,7 @@ Perfecto Jenkins Plugin provides the ability to auto-create/ re-use existing Per
 	b.	Select option: “Perfecto” under Kind dropdown in Add Credentials window.</br>
 	c.	Provide Your Cloud Name, Username and Security Token and click on Add.</br>
 	
-	<img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/cred.png" height="260" width="760"/></br>
+	<img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/cred.png" height="260" width="760"/></br>
 
 7.	Provide Perfecto Connect Path in Perfecto Connect Path text field. </br>
 	a.	E.g.: - /Users/Mymac/Downloads</br>
@@ -51,10 +51,10 @@ Perfecto Jenkins Plugin provides the ability to auto-create/ re-use existing Per
 
 ## Screenshots
 ### Mac
-<img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/mac.png" height="260" width="760"/>
+<img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/mac.png" height="260" width="760"/>
 	 
 ### Windows
-<img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/win.png" height="260" width="760"/>
+<img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/win.png" height="260" width="760"/>
 
 ## Advanced Options
 
@@ -65,14 +65,14 @@ You can provide Advanced options such as Perfecto Connect Additional Parameters,
 2.	You can override Tunnel ID Environment Variable name in Override Tunnel ID Name in text field. (The default Jenkins Build Environment variable name is tunnelId)</br>
 3.	You can reuse already created Tunnel ID in Existing Tunnel ID text field.</br>
 
-	<img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/4.png" height="250" width="820"/></br>
+	<img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/4.png" height="250" width="820"/></br>
  
 ## Steps to Stop Perfecto Connect
 
 1.	Add a Post Build task under Post Build Action.</br>
 2.	Enter the below script under Script text field.</br>
 
-	<img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/5.png" height="360" width="760"/></br>
+	<img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/5.png" height="360" width="760"/></br>
  
 ## Perfecto Connect Pipeline Sample: 
 
@@ -114,9 +114,9 @@ String perfectoConnectPath = "/Users/myMac/Downloads/perfectoconnect";
 
 ### Maven Sample
 
-<img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/6.png" height="360" width="820"/>
+<img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/6.png" height="360" width="820"/>
  
 ### Gradle Sample
 
-<img src="https://github.com/PerfectoMobileSA/Perfecto-Jenkins-Plugin/blob/master/DOC/7.png" height="360" width="800"/>
+<img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/7.png" height="360" width="800"/>
  
