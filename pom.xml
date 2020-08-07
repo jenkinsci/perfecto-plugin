@@ -19,7 +19,7 @@
 	</properties>
 	<groupId>io.jenkins.plugins</groupId>
 	<artifactId>perfecto</artifactId>
-	<version>1.10-SNAPSHOT</version>
+	<version>1.10</version>
 	<packaging>hpi</packaging>
 	<name>Perfecto Plugin</name>
 	<description>This Perfecto Plugin provides the ability to auto-create/ re-use existing perfecto connect tunnel-id in build environment.</description>
@@ -30,7 +30,7 @@
 		<connection>scm:git:ssh://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/jenkinsci/${project.artifactId}-plugin.git</developerConnection>
 		<url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
-		<tag>{scmTag}</tag>
+		<tag>perfecto-1.10</tag>
   </scm>
 
 	<licenses>
