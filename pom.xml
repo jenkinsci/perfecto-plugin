@@ -25,7 +25,7 @@
 	<description>This Perfecto Plugin provides the ability to auto-create/ re-use existing perfecto connect tunnel-id in build environment.</description>
 
 
-	<url>https://developers.perfectomobile.com/display/PD/Jenkins+plugin</url>
+	<url>https://github.com/jenkinsci/perfecto-plugin</url>
 	<scm>
 		<connection>scm:git:ssh://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/jenkinsci/${project.artifactId}-plugin.git</developerConnection>
