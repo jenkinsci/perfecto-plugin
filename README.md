@@ -9,23 +9,19 @@ Perfecto Jenkins Plugin provides the ability to auto-create/ re-use existing Per
 
 - [Perfecto Jenkins Plugin](#perfecto-jenkins-plugin)
 - [Table of Contents](#table-of-contents)
-  - [How to use](#how-to-use)
   - [Prerequisites](#prerequisites)
-    - [Steps to Enable the plugin](#steps-to-enable-the-plugin)
-  - [Screenshots](#screenshots)
-    - [Mac](#mac)
-    - [Windows](#windows)
-  - [Advanced Options](#advanced-options)
-  - [Usage](#usage)
+  - [1. Steps to Enable the plugin](#1-steps-to-enable-the-plugin)
+    - [Screenshots](#screenshots)
+      - [Mac](#mac)
+      - [Windows](#windows)
+    - [Advanced Options](#advanced-options)
+  - [2. Usage](#2-usage)
     - [Maven Sample](#maven-sample)
     - [Gradle Sample](#gradle-sample)
-  - [Steps to Stop Perfecto Connect](#steps-to-stop-perfecto-connect)
-  - [Perfecto Connect Pipeline Sample:](#perfecto-connect-pipeline-sample)
-    - [Steps](#steps)
-  - [Upload app to perfecto](#upload-app-to-perfecto)
-
-    
-## How to use
+  - [3. Steps to Stop Perfecto Connect](#3-steps-to-stop-perfecto-connect)
+  - [Advanced Usage](#advanced-usage)
+    - [Perfecto Connect Pipeline Sample](#perfecto-connect-pipeline-sample)
+    - [Upload app to perfecto](#upload-app-to-perfecto)
 
 ## Prerequisites
 
@@ -33,7 +29,7 @@ Perfecto Jenkins Plugin provides the ability to auto-create/ re-use existing Per
 * Generate Perfecto Security Token (if not generated already) 
 * Mac users should install Jenkins via [brew.](https://www.jenkins.io/download/lts/macos/)
 
-### Steps to Enable the plugin 
+## 1. Steps to Enable the plugin 
 
 1.	Click New Item in Jenkins home page.</br>
 2.	Enter Your preferred Item name.</br>
@@ -53,14 +49,14 @@ Perfecto Jenkins Plugin provides the ability to auto-create/ re-use existing Per
 	a.	E.g.: - Mac – perfectoconnect</br>
 	b.	E.g.: - Windows – perfectoconnect64.exe or perfectoconnect32.exe</br>
 
-## Screenshots
-### Mac
+### Screenshots
+#### Mac
 <img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/mac.png" height="260" width="760"/>
 	 
-### Windows
+#### Windows
 <img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/win.png" height="260" width="760"/>
 
-## Advanced Options
+### Advanced Options
 
 You can provide Advanced options such as Perfecto Connect Additional Parameters, Override Tunnel ID  Name and Existing Tunnel ID.</br>
 1.	Additional Parameters</br>
@@ -71,7 +67,7 @@ You can provide Advanced options such as Perfecto Connect Additional Parameters,
 
 <img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/4.png" height="200" width="620"/></br>
 
-## Usage
+## 2. Usage
 
 ### Maven Sample
 
@@ -82,16 +78,16 @@ You can provide Advanced options such as Perfecto Connect Additional Parameters,
 <img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/7.png" height="360" width="800"/>
  
  
-## Steps to Stop Perfecto Connect
+## 3. Steps to Stop Perfecto Connect
 
 1.	Add a Post Build task under Post Build Action.</br>
 2.	Enter the below script under Script text field.</br>
 
 <img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/5.png" height="360" width="760"/></br>
  
-## Perfecto Connect Pipeline Sample: 
+## Advanced Usage
 
-### Steps
+### Perfecto Connect Pipeline Sample
 
 1.	Create a new Pipeline and add the below code to pipeline script text field.</br>
 2.	Update cloudName, securityToken and perfectoConnectPath as applicable.</br>
@@ -125,6 +121,6 @@ String perfectoConnectPath = "/Users/myMac/Downloads/perfectoconnect";
 }
 ```
 
-## Upload app to perfecto
+### Upload app to perfecto
 	
 Follow [this](https://developers.perfectomobile.com/display/TT/How+to+upload+file+to+the+repository+via+API+using+postman+or+curl) documentation to use curl and upload app to perfecto media repository.
