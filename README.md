@@ -69,13 +69,13 @@ You can provide Advanced options such as Perfecto Connect Additional Parameters,
 2.	You can override Tunnel ID Environment Variable name in Override Tunnel ID Name in text field. (The default Jenkins Build Environment variable name is tunnelId)</br>
 3.	You can reuse already created Tunnel ID in Existing Tunnel ID text field.</br>
 
-<img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/4.png" height="250" width="820"/></br>
+<img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/4.png" height="200" width="620"/></br>
 
 ## Usage
 
 ### Maven Sample
 
-<img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/6.png" height="360" width="820"/>
+<img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/6.png" height="300" width="800"/>
  
 ### Gradle Sample
 
