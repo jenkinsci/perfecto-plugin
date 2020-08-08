@@ -8,6 +8,7 @@ Perfecto Jenkins Plugin provides the ability to auto-create/ re-use existing Per
 # Table of Contents
 
 - [Perfecto Jenkins Plugin](#perfecto-jenkins-plugin)
+- [Table of Contents](#table-of-contents)
   - [How to use](#how-to-use)
   - [Prerequisites](#prerequisites)
     - [Steps to Enable the plugin](#steps-to-enable-the-plugin)
@@ -15,13 +16,14 @@ Perfecto Jenkins Plugin provides the ability to auto-create/ re-use existing Per
     - [Mac](#mac)
     - [Windows](#windows)
   - [Advanced Options](#advanced-options)
+  - [Usage](#usage)
+    - [Maven Sample](#maven-sample)
+    - [Gradle Sample](#gradle-sample)
   - [Steps to Stop Perfecto Connect](#steps-to-stop-perfecto-connect)
   - [Perfecto Connect Pipeline Sample:](#perfecto-connect-pipeline-sample)
     - [Steps](#steps)
   - [Upload app to perfecto](#upload-app-to-perfecto)
-  - [Usage](#usage)
-    - [Maven Sample](#maven-sample)
-    - [Gradle Sample](#gradle-sample)
+
     
 ## How to use
 
@@ -38,7 +40,7 @@ Perfecto Jenkins Plugin provides the ability to auto-create/ re-use existing Per
 3.	Select any project type except pipeline.</br>
 4.	Click OK.</br>
 5.	Select Perfecto Connect checkbox under Build Environment (Refer Screenshots section)</br>
-6.	Provide Your Credentials.</br>
+6.	Note: Get help from your Jenkins Administrator to create the below Perfecto credentials:</br>
 	a.	Select Add option next to Credentials dropdown and select Jenkins. </br>
 	b.	Select option: “Perfecto” under Kind dropdown in Add Credentials window.</br>
 	c.	Provide Your Cloud Name, Username and Security Token and click on Add.</br>
@@ -68,6 +70,17 @@ You can provide Advanced options such as Perfecto Connect Additional Parameters,
 3.	You can reuse already created Tunnel ID in Existing Tunnel ID text field.</br>
 
 <img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/4.png" height="250" width="820"/></br>
+
+## Usage
+
+### Maven Sample
+
+<img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/6.png" height="360" width="820"/>
+ 
+### Gradle Sample
+
+<img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/7.png" height="360" width="800"/>
+ 
  
 ## Steps to Stop Perfecto Connect
 
@@ -115,14 +128,3 @@ String perfectoConnectPath = "/Users/myMac/Downloads/perfectoconnect";
 ## Upload app to perfecto
 	
 Follow [this](https://developers.perfectomobile.com/display/TT/How+to+upload+file+to+the+repository+via+API+using+postman+or+curl) documentation to use curl and upload app to perfecto media repository.
-
-## Usage
-
-### Maven Sample
-
-<img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/6.png" height="360" width="820"/>
- 
-### Gradle Sample
-
-<img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/7.png" height="360" width="800"/>
- 
