@@ -18,6 +18,7 @@ Perfecto Jenkins Plugin provides the ability to auto-create/ re-use existing Per
   - [Steps to Stop Perfecto Connect](#steps-to-stop-perfecto-connect)
   - [Perfecto Connect Pipeline Sample:](#perfecto-connect-pipeline-sample)
     - [Steps](#steps)
+  - [Upload app to perfecto](#upload-app-to-perfecto)
   - [Usage](#usage)
     - [Maven Sample](#maven-sample)
     - [Gradle Sample](#gradle-sample)
@@ -28,6 +29,7 @@ Perfecto Jenkins Plugin provides the ability to auto-create/ re-use existing Per
 
 * Download Perfecto Connect client, extract to any folder.
 * Generate Perfecto Security Token (if not generated already) 
+* Mac users should install Jenkins via [brew.](https://www.jenkins.io/download/lts/macos/)
 
 ### Steps to Enable the plugin 
 
@@ -41,7 +43,7 @@ Perfecto Jenkins Plugin provides the ability to auto-create/ re-use existing Per
 	b.	Select option: “Perfecto” under Kind dropdown in Add Credentials window.</br>
 	c.	Provide Your Cloud Name, Username and Security Token and click on Add.</br>
 	
-	<img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/cred.png" height="260" width="760"/></br>
+<img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/cred.png" height="260" width="760"/></br>
 
 7.	Provide Perfecto Connect Path in Perfecto Connect Path text field. </br>
 	a.	E.g.: - /Users/Mymac/Downloads</br>
@@ -65,14 +67,14 @@ You can provide Advanced options such as Perfecto Connect Additional Parameters,
 2.	You can override Tunnel ID Environment Variable name in Override Tunnel ID Name in text field. (The default Jenkins Build Environment variable name is tunnelId)</br>
 3.	You can reuse already created Tunnel ID in Existing Tunnel ID text field.</br>
 
-	<img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/4.png" height="250" width="820"/></br>
+<img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/4.png" height="250" width="820"/></br>
  
 ## Steps to Stop Perfecto Connect
 
 1.	Add a Post Build task under Post Build Action.</br>
 2.	Enter the below script under Script text field.</br>
 
-	<img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/5.png" height="360" width="760"/></br>
+<img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/5.png" height="360" width="760"/></br>
  
 ## Perfecto Connect Pipeline Sample: 
 
@@ -109,6 +111,10 @@ String perfectoConnectPath = "/Users/myMac/Downloads/perfectoconnect";
     }
 }
 ```
+
+## Upload app to perfecto
+	
+Follow [this](https://developers.perfectomobile.com/display/TT/How+to+upload+file+to+the+repository+via+API+using+postman+or+curl) documentation to use curl and upload app to perfecto media repository.
 
 ## Usage
 
