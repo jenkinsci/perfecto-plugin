@@ -363,7 +363,7 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 			}
 
 			if (value == null || value.isEmpty()|| CredentialsProvider.listCredentials(PerfectoCredentials.class, item, ACL.SYSTEM, Collections.emptyList(), CredentialsMatchers.withId(value)).isEmpty()) {
-				return FormValidation.error("Select a perfecto kind credentials with cloudName, userName and securityToken.");
+				return FormValidation.error("Add/ Select a Perfecto kind credentials with valid Cloud Name, Username and Security Token.");
 			}
 			return FormValidation.ok();
 		}

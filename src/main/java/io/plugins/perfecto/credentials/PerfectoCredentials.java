@@ -105,7 +105,6 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 
 	public static FormValidation testAuthentication(final String username, final String cloudName, final String apikey) {
 		String checkConnectionURL = "https://"+cloudName+".perfectomobile.com/services/users/"+username+"?operation=info&securityToken="+apikey;
-		System.out.println(checkConnectionURL);
 		URL myURL;
 		HttpsURLConnection conn = null;
 		try {
@@ -205,17 +204,16 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 		public FormValidation doCheckCloudName(@QueryParameter String value) {
 			Jenkins.get().checkPermission(Jenkins.ADMINISTER);
 			if (Util.fixEmptyAndTrim(value) == null) {
-				return FormValidation.error("cloudName cannot be empty");
+				return FormValidation.error("Cloud Name cannot be empty");
 			}
 			return FormValidation.ok();
 		}
 
 		@POST
-		public FormValidation doCheckApiKey(@QueryParameter("apiKey") String value) {
-			System.out.println(value);
+		public FormValidation doCheckApiKey(@QueryParameter String value) {
 			Jenkins.get().checkPermission(Jenkins.ADMINISTER);
 			if (Util.fixEmptyAndTrim(value) == null) {
-				return FormValidation.error("apiKey cannot be empty");
+				return FormValidation.error("Security Token cannot be empty");
 			}
 			return FormValidation.ok();
 		}
@@ -224,7 +222,7 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 		public FormValidation doCheckUserName(@QueryParameter String value) {
 			Jenkins.get().checkPermission(Jenkins.ADMINISTER);
 			if (Util.fixEmptyAndTrim(value) == null) {
-				return FormValidation.error("userName cannot be empty");
+				return FormValidation.error("Username cannot be empty");
 			}
 			return FormValidation.ok();
 		}
