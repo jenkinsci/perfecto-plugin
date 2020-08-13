@@ -2,7 +2,6 @@ package io.plugins.perfecto.credentials;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Date;
@@ -20,7 +19,6 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.verb.POST;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.cloudbees.plugins.credentials.Credentials;
 import com.cloudbees.plugins.credentials.CredentialsDescriptor;
@@ -36,6 +34,8 @@ import com.google.common.base.Strings;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
+import hudson.FilePath;
+import hudson.Launcher.LocalLauncher;
 import hudson.Util;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractDescribableImpl;
@@ -44,6 +44,7 @@ import hudson.model.BuildableItemWithBuildWrappers;
 import hudson.model.Descriptor;
 import hudson.model.Item;
 import hudson.model.ItemGroup;
+import hudson.model.TaskListener;
 import hudson.security.ACL;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
@@ -74,7 +75,7 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 
 	@DataBoundConstructor
 	public PerfectoCredentials(@CheckForNull CredentialsScope scope, @CheckForNull String id, @CheckForNull String userName, @CheckForNull String cloudName,
-			@NonNull String apiKey, @CheckForNull String description) {
+			@CheckForNull String apiKey, @CheckForNull String description) {
 		super(scope, id, description);
 		this.userName = userName;
 		this.cloudName = cloudName;
@@ -143,18 +144,12 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 						System.currentTimeMillis() +
 						(long) getShortLivedConfig().getTime() * 1000 /* to millis */ * 60 /* to minutes */
 						);
-
-				String token = JWT.create()
-						.withExpiresAt(expires)
-						.withIssuedAt(d)
-						.sign(Algorithm.HMAC256(apiKey.getPlainText()));
+				String token = JWT.create().withExpiresAt(expires).withIssuedAt(d).sign(com.auth0.jwt.algorithms.Algorithm.HMAC256(apiKey.getPlainText()));
 				return Secret.fromString(token);
 			} catch (JWTCreationException e){
 				//Invalid Signing configuration / Couldn't convert Claims.
 				e.printStackTrace();
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			}
+			} 
 		}
 		return getApiKey();
 	}
@@ -194,6 +189,7 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 		@POST
 		public final FormValidation doAuthenticate(@QueryParameter("userName") String userName, @QueryParameter("cloudName") String cloudName,
 				@QueryParameter("apiKey") String apiKey) {
+			Jenkins.get().checkPermission(Jenkins.ADMINISTER);
 			if (StringUtils.isBlank(userName) || StringUtils.isBlank(cloudName) || StringUtils.isBlank(apiKey)) {
 				return FormValidation.error(ERR_EMPTY_AUTH);
 			}
@@ -206,9 +202,13 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 			if (Util.fixEmptyAndTrim(value) == null) {
 				return FormValidation.error("Cloud Name cannot be empty");
 			}
+			if(!value.matches("[\\w.\\-]{0,19}")) {
+				return FormValidation.error("Cloud Name doesnt seem to be valid.");
+			}
 			return FormValidation.ok();
 		}
 
+		
 		@POST
 		public FormValidation doCheckApiKey(@QueryParameter String value) {
 			Jenkins.get().checkPermission(Jenkins.ADMINISTER);
@@ -223,6 +223,9 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 			Jenkins.get().checkPermission(Jenkins.ADMINISTER);
 			if (Util.fixEmptyAndTrim(value) == null) {
 				return FormValidation.error("Username cannot be empty");
+			}
+			if(!value.matches("^.{1,50}$")) {
+				return FormValidation.error("User Name doesnt seem to be valid.");
 			}
 			return FormValidation.ok();
 		}
@@ -295,17 +298,7 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 				CredentialsMatchers.withId(id)
 				);
 	}
-
-
-	/**
-	 *
-	 */
-	private static final String HMAC_KEY = "HMACMD5";
-	/**
-	 * Format for the date component of the HMAC.
-	 */
-	private static final String DATE_FORMAT = "yyyy-MM-dd-HH";
-
+	
 	public static final class ShortLivedConfig extends AbstractDescribableImpl<ShortLivedConfig> implements Serializable {
 		protected final Integer time;
 
