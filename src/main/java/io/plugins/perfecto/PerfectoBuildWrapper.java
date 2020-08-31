@@ -1,9 +1,15 @@
 package io.plugins.perfecto;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,16 +31,21 @@ import com.google.common.base.Strings;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
+import hudson.FilePath;
 import hudson.Launcher;
+import hudson.Launcher.ProcStarter;
+import hudson.Proc;
 import hudson.Util;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
 import hudson.model.BuildableItemWithBuildWrappers;
+import hudson.model.Computer;
 import hudson.model.Item;
 import hudson.model.ItemGroup;
 import hudson.model.Result;
 import hudson.model.listeners.ItemListener;
+import hudson.remoting.Channel;
 import hudson.security.ACL;
 import hudson.security.AccessControlled;
 import hudson.tasks.BatchFile;
@@ -148,6 +159,7 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 		this.reuseTunnelId = reuseTunnelId;
 	}
 
+
 	/**
 	 * {@inheritDoc}
 	 *
@@ -174,20 +186,30 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 			}else {
 				pcLocation = perfectoConnectLocation+File.separator+perfectoConnectFile;
 			}
-			String baseCommand = pcLocation.trim()+" start -c "+credentials.getCloudName().trim()+".perfectomobile.com -s "+apiKey.trim();
+			String baseCommand = pcLocation.trim()+" start -c "+credentials.getCloudName().trim()+".perfectomobile.com -s " + apiKey.trim();
 			listener.getLogger().println(pcLocation.trim()+" start -c "+credentials.getCloudName().trim()+".perfectomobile.com -s <<TOKEN>> "+pcParameters.trim());
 			String script = baseCommand+" "+pcParameters.trim();
-			System.out.println("code: "+baseCommand+" "+pcParameters.trim());
-			CommandInterpreter runner = getCommandInterpreter(launcher,
-					script);
-			Result result = runner.perform(build, launcher, listener) ? Result.SUCCESS
-					: Result.FAILURE;
-			List reader = build.getLog(10);
-			System.out.println(reader.toString());
+
+			List<String> reader = new ArrayList<String>();
+			try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+				Proc p  = launcher.launch(launcher.new ProcStarter().pwd(new FilePath(new File(perfectoConnectLocation))).cmds(script.split(" ")).stdout(baos));
+				for (int i = 0; p.isAlive() && i < 200; i++) {
+					Thread.sleep(100);
+				}
+				int exitCode = p.join();
+				if (exitCode == 0) {
+					reader.add(baos.toString(launcher.getComputer().getDefaultCharset().name()).replaceAll("[\t\r\n]+", " ").trim());
+				} else {
+					return null;
+				}
+			} catch (IOException e) {
+				listener.fatalError("Unable to create tunnel ID. Kindly cross check your parameters or raise a Perfecto support case."+e.getMessage());
+				throw new IOException("Unable to create tunnel ID. Kindly cross check your parameters or raise a Perfecto support case."+e.getMessage());
+			}
 			String s = null;
 			for(int i = 0; i < reader.size(); i++) {
 				s = reader.get(i).toString();
-//				listener.getLogger().println(s); // Debug
+				//				listener.getLogger().println(s); // Debug
 				Matcher m = Pattern.compile("^[A-Za-z0-9-]+$").matcher(s);
 				if (m.find()) {
 					tunnelId = m.group(0);

@@ -34,8 +34,6 @@ import com.google.common.base.Strings;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
-import hudson.FilePath;
-import hudson.Launcher.LocalLauncher;
 import hudson.Util;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractDescribableImpl;
@@ -44,7 +42,6 @@ import hudson.model.BuildableItemWithBuildWrappers;
 import hudson.model.Descriptor;
 import hudson.model.Item;
 import hudson.model.ItemGroup;
-import hudson.model.TaskListener;
 import hudson.security.ACL;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
@@ -60,15 +57,12 @@ import jenkins.model.Jenkins;
 public class PerfectoCredentials extends BaseStandardCredentials implements StandardUsernamePasswordCredentials {
 
 
-	protected final String userName;
-	protected final String cloudName;
-	protected final Secret apiKey;
+	protected String userName;
+	protected String cloudName;
+	protected Secret apiKey;
 	private static final String ERR_EMPTY_AUTH = "Empty username or cloudname or security token!";
 	private static final String ERR_INVALID_AUTH = "Invalid username or cloudname or security token!";
 	private static final String OK_VALID_AUTH = "Success";
-	/**
-	 * The data center endpoint
-	 */
 
 	protected ShortLivedConfig shortLivedConfig;
 
@@ -77,9 +71,33 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 	public PerfectoCredentials(@CheckForNull CredentialsScope scope, @CheckForNull String id, @CheckForNull String userName, @CheckForNull String cloudName,
 			@CheckForNull String apiKey, @CheckForNull String description) {
 		super(scope, id, description);
-		this.userName = userName;
-		this.cloudName = cloudName;
-		this.apiKey = Secret.fromString(apiKey);
+		if(Util.fixEmptyAndTrim(userName) != null) {
+			if(Util.fixEmptyAndTrim(userName).matches("^.{1,50}$")) {
+				this.userName = userName;
+			}else {
+				throw new IllegalArgumentException("Username seems to be empty.");
+			}
+		}else {
+			throw new IllegalArgumentException("Username is null");
+		}
+		if(Util.fixEmptyAndTrim(cloudName) != null) {
+			if(Util.fixEmptyAndTrim(cloudName).matches("[\\w.-]{0,19}")) {
+				this.cloudName = cloudName;
+			}else {
+				throw new IllegalArgumentException("Cloud Name doesnt seem to be valid.");
+			}
+		}else {
+			throw new IllegalArgumentException("Cloud Name is null");
+		}
+		if(Util.fixEmptyAndTrim(apiKey) != null) {
+			if(!Util.fixEmptyAndTrim(apiKey).isEmpty()){
+				this.apiKey = Secret.fromString(apiKey);
+			}else {
+				throw new IllegalArgumentException("Security Token seems to be empty.");
+			}
+		}else {
+			throw new IllegalArgumentException("Security Token is null");
+		}
 	}
 
 	public ShortLivedConfig getShortLivedConfig() {
@@ -202,13 +220,13 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 			if (Util.fixEmptyAndTrim(value) == null) {
 				return FormValidation.error("Cloud Name cannot be empty");
 			}
-			if(!value.matches("[\\w.\\-]{0,19}")) {
+			if(!value.matches("[\\w.-]{0,19}")) {
 				return FormValidation.error("Cloud Name doesnt seem to be valid.");
 			}
 			return FormValidation.ok();
 		}
 
-		
+
 		@POST
 		public FormValidation doCheckApiKey(@QueryParameter String value) {
 			Jenkins.get().checkPermission(Jenkins.ADMINISTER);
@@ -298,7 +316,7 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 				CredentialsMatchers.withId(id)
 				);
 	}
-	
+
 	public static final class ShortLivedConfig extends AbstractDescribableImpl<ShortLivedConfig> implements Serializable {
 		protected final Integer time;
 
