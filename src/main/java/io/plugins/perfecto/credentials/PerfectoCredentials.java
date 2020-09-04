@@ -65,14 +65,14 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 	private static final String OK_VALID_AUTH = "Success";
 
 	protected ShortLivedConfig shortLivedConfig;
-
+	static String regex = "^[^>|;\\{}()\\&&<^]*$";
 
 	@DataBoundConstructor
 	public PerfectoCredentials(@CheckForNull CredentialsScope scope, @CheckForNull String id, @CheckForNull String userName, @CheckForNull String cloudName,
 			@CheckForNull String apiKey, @CheckForNull String description) {
 		super(scope, id, description);
 		if(Util.fixEmptyAndTrim(userName) != null) {
-			if(Util.fixEmptyAndTrim(userName).matches("^.{1,50}$")) {
+			if(Util.fixEmptyAndTrim(userName).matches("^.{1,50}$") && (Util.fixEmptyAndTrim(userName).matches(regex))) {
 				this.userName = userName;
 			}else {
 				throw new IllegalArgumentException("Username seems to be empty.");
@@ -80,7 +80,7 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 		}else {
 			throw new IllegalArgumentException("Username is null");
 		}
-		if(Util.fixEmptyAndTrim(cloudName) != null) {
+		if(Util.fixEmptyAndTrim(cloudName) != null && (Util.fixEmptyAndTrim(cloudName).matches(regex))) {
 			if(Util.fixEmptyAndTrim(cloudName).matches("[\\w.-]{0,19}")) {
 				this.cloudName = cloudName;
 			}else {
@@ -90,7 +90,7 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 			throw new IllegalArgumentException("Cloud Name is null");
 		}
 		if(Util.fixEmptyAndTrim(apiKey) != null) {
-			if(!Util.fixEmptyAndTrim(apiKey).isEmpty()){
+			if(!Util.fixEmptyAndTrim(apiKey).isEmpty() && (Util.fixEmptyAndTrim(apiKey).matches(regex))){
 				this.apiKey = Secret.fromString(apiKey);
 			}else {
 				throw new IllegalArgumentException("Security Token seems to be empty.");
@@ -220,7 +220,7 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 			if (Util.fixEmptyAndTrim(value) == null) {
 				return FormValidation.error("Cloud Name cannot be empty");
 			}
-			if(!value.matches("[\\w.-]{0,19}")) {
+			if(!value.matches("[\\w.-]{0,19}") && (!Util.fixEmptyAndTrim(value).matches(regex))) {
 				return FormValidation.error("Cloud Name doesnt seem to be valid.");
 			}
 			return FormValidation.ok();
@@ -233,6 +233,9 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 			if (Util.fixEmptyAndTrim(value) == null) {
 				return FormValidation.error("Security Token cannot be empty");
 			}
+			if(!Util.fixEmptyAndTrim(value).matches(regex)) {
+				return FormValidation.error("security token  doesnt seem to be valid.");
+			}
 			return FormValidation.ok();
 		}
 
@@ -242,7 +245,7 @@ public class PerfectoCredentials extends BaseStandardCredentials implements Stan
 			if (Util.fixEmptyAndTrim(value) == null) {
 				return FormValidation.error("Username cannot be empty");
 			}
-			if(!value.matches("^.{1,50}$")) {
+			if((!Util.fixEmptyAndTrim(value).matches(regex))) {
 				return FormValidation.error("User Name doesnt seem to be valid.");
 			}
 			return FormValidation.ok();

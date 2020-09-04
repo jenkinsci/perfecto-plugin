@@ -101,9 +101,9 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 	/**
 	 * The Perfecto Connect parameters.
 	 */
-	private String pcParameters;
+	private String pcParameters = " ";
 
-	private String reuseTunnelId;
+	private String reuseTunnelId = " ";
 
 	private PerfectoCredentials credentials;
 
@@ -116,9 +116,11 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 
 	private String tunnelId = null;
 
-	private String perfectoConnectFile;
+	private String perfectoConnectFile = "";
 
 	private String pcLocation = "";
+
+	private String regex = "^[^>|;\\{}()\\&&<^]*$";
 
 	@Override
 	public void makeSensitiveBuildVariables(AbstractBuild build, Set<String> sensitiveVariables) {
@@ -148,17 +150,47 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 			String perfectoConnectFile,
 			String reuseTunnelId
 			) {
-		this.perfectoConnectLocation = perfectoConnectLocation;
+		System.out.println(perfectoConnectLocation);
+		if(Util.fixEmptyAndTrim(perfectoConnectLocation).matches(regex)) {
+			this.perfectoConnectLocation = perfectoConnectLocation;
+		}else {
+			throw new IllegalArgumentException("Perfecto location doesnt seem to be valid.");
+		}
 		this.condition = condition;
 		if(tunnelIdCustomName.length()>1)
-			this.tunnelIdCustomName = tunnelIdCustomName;
+			if(Util.fixEmptyAndTrim(tunnelIdCustomName).matches(regex)) {
+				this.tunnelIdCustomName = tunnelIdCustomName;
+			}else {
+				throw new IllegalArgumentException("Custom tunnel id doesnt seem to be valid.");
+			}
+
 		this.credentialId = credentialId;
 		this.perfectoSecurityToken = perfectoSecurityToken;
-		this.pcParameters = pcParameters;
-		this.perfectoConnectFile = perfectoConnectFile;
-		this.reuseTunnelId = reuseTunnelId;
-	}
+		if (Util.fixEmptyAndTrim(pcParameters) != null) {
+			if(Util.fixEmptyAndTrim(pcParameters).matches(regex)) {
+				this.pcParameters = pcParameters;
+			}else {
+				throw new IllegalArgumentException("Additional parameters doesnt seem to be valid.");
+			}
+		}else {
+			this.pcParameters = " ";
+		}
+		if(Util.fixEmptyAndTrim(perfectoConnectFile).matches(regex)) {
+			this.perfectoConnectFile = perfectoConnectFile;
+		}else {
+			throw new IllegalArgumentException("perfectoConnectFile doesnt seem to be valid.");
+		}
+		if (Util.fixEmptyAndTrim(reuseTunnelId) != null) {
+			if(Util.fixEmptyAndTrim(reuseTunnelId).matches(regex)) {
+				this.reuseTunnelId = reuseTunnelId;
+			}else {
+				throw new IllegalArgumentException("Existing tunnel id doesnt seem to be valid.");
+			}
+		}else {
+			this.reuseTunnelId = " ";
+		}
 
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -175,11 +207,11 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 		credentials = PerfectoCredentials.getPerfectoCredentials(build, this);
 		CredentialsProvider.track(build, credentials);
 
-		if(credentials==null && !reuseTunnelId.contains("-")) {
+		if(credentials==null && !reuseTunnelId.trim().contains("-")) {
 			listener.fatalError("Credentials missing...... ");
 			throw new IOException("Credentials missing......One reason to see this error is to check if you had selected the required credentials in build environment section.");
 		}
-		if(!reuseTunnelId.contains("-")) {
+		if(!reuseTunnelId.trim().contains("-")) {
 			final String apiKey = credentials.getPassword().getPlainText();
 			if(perfectoConnectLocation.endsWith("/")||perfectoConnectLocation.endsWith("\\")) {
 				pcLocation = perfectoConnectLocation+perfectoConnectFile;
