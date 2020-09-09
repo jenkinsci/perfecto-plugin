@@ -28,6 +28,7 @@ Perfecto Jenkins Plugin provides the ability to auto-create/ re-use existing Per
 * Download Perfecto Connect client, extract to any folder.
 * Generate Perfecto Security Token (if not generated already) 
 * Mac users should install Jenkins via [brew.](https://www.jenkins.io/download/lts/macos/)
+* In Jenkins, navigate to Manage Jenkins > Manage Plugins view, available to administrators of a Jenkins environment. Search for “perfecto” under the Available tab, click on the checkbox near to it and then click on Install without restart button.
 
 ## 1. Steps to Enable the plugin 
 

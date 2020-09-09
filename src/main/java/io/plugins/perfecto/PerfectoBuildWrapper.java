@@ -1,21 +1,20 @@
 package io.plugins.perfecto;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.annotation.Nonnull;
 
 import org.jenkins_ci.plugins.run_condition.RunCondition;
 import org.jenkinsci.Symbol;
@@ -30,10 +29,10 @@ import com.cloudbees.plugins.credentials.common.StandardUsernameListBoxModel;
 import com.google.common.base.Strings;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import hudson.AbortException;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.Launcher.ProcStarter;
 import hudson.Proc;
 import hudson.Util;
 import hudson.model.AbstractBuild;
@@ -43,9 +42,7 @@ import hudson.model.BuildableItemWithBuildWrappers;
 import hudson.model.Computer;
 import hudson.model.Item;
 import hudson.model.ItemGroup;
-import hudson.model.Result;
 import hudson.model.listeners.ItemListener;
-import hudson.remoting.Channel;
 import hudson.security.ACL;
 import hudson.security.AccessControlled;
 import hudson.tasks.BatchFile;
@@ -69,7 +66,7 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 	 * Logger instance.
 	 */
 	private static final Logger logger = Logger.getLogger(PerfectoBuildWrapper.class.getName());
-
+	private static final long serialVersionUID = 6106269076155338045L;
 	/**
 	 * Environment variable key which contains the Perfecto Security token.
 	 */
@@ -80,7 +77,7 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 	public static final String PERFECTO_CLOUD_NAME = "perfectoCloudName";
 
 	public static final Pattern ENVIRONMENT_VARIABLE_PATTERN = Pattern.compile("[$|%][{]?([a-zA-Z_][a-zA-Z0-9_]+)[}]?");
-
+	private transient Computer computer;
 	/**
 	 * The custom Tunnel Id name.
 	 */
@@ -122,6 +119,8 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 
 	private String regex = "^[^>|;\\{}()\\&&<^]*$";
 
+	 private transient Launcher launcher;
+	 
 	@Override
 	public void makeSensitiveBuildVariables(AbstractBuild build, Set<String> sensitiveVariables) {
 		super.makeSensitiveBuildVariables(build, sensitiveVariables);
@@ -150,15 +149,16 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 			String perfectoConnectFile,
 			String reuseTunnelId
 			) {
+		this.launcher = null;
 		System.out.println(perfectoConnectLocation);
-		if(Util.fixEmptyAndTrim(perfectoConnectLocation).matches(regex)) {
+		if(perfectoConnectLocation.trim().matches(regex)) {
 			this.perfectoConnectLocation = perfectoConnectLocation;
 		}else {
 			throw new IllegalArgumentException("Perfecto location doesnt seem to be valid.");
 		}
 		this.condition = condition;
 		if(tunnelIdCustomName.length()>1)
-			if(Util.fixEmptyAndTrim(tunnelIdCustomName).matches(regex)) {
+			if(tunnelIdCustomName.trim().matches(regex)) {
 				this.tunnelIdCustomName = tunnelIdCustomName;
 			}else {
 				throw new IllegalArgumentException("Custom tunnel id doesnt seem to be valid.");
@@ -167,7 +167,7 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 		this.credentialId = credentialId;
 		this.perfectoSecurityToken = perfectoSecurityToken;
 		if (Util.fixEmptyAndTrim(pcParameters) != null) {
-			if(Util.fixEmptyAndTrim(pcParameters).matches(regex)) {
+			if(pcParameters.trim().matches(regex)) {
 				this.pcParameters = pcParameters;
 			}else {
 				throw new IllegalArgumentException("Additional parameters doesnt seem to be valid.");
@@ -175,13 +175,13 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 		}else {
 			this.pcParameters = " ";
 		}
-		if(Util.fixEmptyAndTrim(perfectoConnectFile).matches(regex)) {
+		if(perfectoConnectFile.trim().matches(regex)) {
 			this.perfectoConnectFile = perfectoConnectFile;
 		}else {
 			throw new IllegalArgumentException("perfectoConnectFile doesnt seem to be valid.");
 		}
 		if (Util.fixEmptyAndTrim(reuseTunnelId) != null) {
-			if(Util.fixEmptyAndTrim(reuseTunnelId).matches(regex)) {
+			if(reuseTunnelId.trim().matches(regex)) {
 				this.reuseTunnelId = reuseTunnelId;
 			}else {
 				throw new IllegalArgumentException("Existing tunnel id doesnt seem to be valid.");
@@ -192,6 +192,40 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 
 	}
 
+	private @Nonnull Computer getComputer() throws AbortException {
+        if (computer != null) {
+            return computer;
+        }
+
+        String node = null;
+        Jenkins j = Jenkins.getActiveInstance();
+
+        for (Computer c : j.getComputers()) {
+            if (c.getChannel() == launcher.getChannel()) {
+                node = c.getName();
+                break;
+            }
+        }
+
+        if (node == null) {
+            throw new AbortException("Could not find computer for the job");
+        }
+
+        computer = j.getComputer(node);
+        if (computer == null) {
+            throw new AbortException("No such computer " + node);
+        }
+
+        if (logger.isLoggable(Level.FINE)) {
+        	logger.log(Level.FINE, "Computer: {0}", computer.getName());
+            try {
+            	logger.log(Level.FINE, "Env: {0}", computer.getEnvironment());
+            } catch (IOException | InterruptedException e) {// ignored
+            }
+        }
+        return computer;
+    }
+	
 	/**
 	 * {@inheritDoc}
 	 *
@@ -201,6 +235,7 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 	 */
 	@Override
 	public Environment setUp(final AbstractBuild build, Launcher launcher, final BuildListener listener) throws IOException, InterruptedException {
+		this.launcher = launcher;
 		listener.getLogger().println("Creating Tunnel Id........!");
 		logger.fine("Setting Perfecto Build Wrapper");
 
@@ -223,17 +258,18 @@ public class PerfectoBuildWrapper extends BuildWrapper implements Serializable {
 			String script = baseCommand+" "+pcParameters.trim();
 
 			List<String> reader = new ArrayList<String>();
-			try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-				Proc p  = launcher.launch(launcher.new ProcStarter().pwd(new FilePath(new File(perfectoConnectLocation))).cmds(script.split(" ")).stdout(baos));
-				for (int i = 0; p.isAlive() && i < 200; i++) {
-					Thread.sleep(100);
-				}
-				int exitCode = p.join();
-				if (exitCode == 0) {
-					reader.add(baos.toString(launcher.getComputer().getDefaultCharset().name()).replaceAll("[\t\r\n]+", " ").trim());
-				} else {
-					return null;
-				}
+			try {
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					Proc p  = launcher.launch(launcher.new ProcStarter().pwd(new FilePath(new File(perfectoConnectLocation))).cmds(script.split(" ")).stdout(baos));
+					for (int i = 0; p.isAlive() && i < 200; i++) {
+						Thread.sleep(100);
+					}
+					int exitCode = p.join();
+					if (exitCode == 0) {
+						reader.add(baos.toString(getComputer().getDefaultCharset().name()).replaceAll("[\t\r\n]+", " ").trim());
+					} else {
+						return null;
+					}
 			} catch (IOException e) {
 				listener.fatalError("Unable to create tunnel ID. Kindly cross check your parameters or raise a Perfecto support case."+e.getMessage());
 				throw new IOException("Unable to create tunnel ID. Kindly cross check your parameters or raise a Perfecto support case."+e.getMessage());
