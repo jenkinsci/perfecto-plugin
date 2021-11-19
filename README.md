@@ -124,4 +124,4 @@ String perfectoConnectPath = "/Users/myMac/Downloads/perfectoconnect";
 
 ### Upload app to perfecto
 	
-Follow [this](https://developers.perfectomobile.com/display/TT/How+to+upload+file+to+the+repository+via+API+using+postman+or+curl) documentation to use curl and upload app to perfecto media repository.
+Follow [this](https://developers.perfectomobile.com/display/TT/Upload+a+file+to+the+repository+via+API+using+Postman+or+cURL) documentation to use curl and upload app to perfecto media repository.
