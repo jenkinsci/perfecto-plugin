@@ -1,3 +1,6 @@
+<i>**As of May 24, 2024, the Perfecto Jenkins plugin will be deprecated. Current plugin installation will continue to work, but going forward, Perfecto will no longer provide bug fixes and maintenance services for this plugin.** </br></i>
+
+
 <img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/perfecto.jpg" height="75" width="300"/>
 
 # Perfecto Jenkins Plugin
