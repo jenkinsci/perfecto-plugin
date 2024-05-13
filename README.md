@@ -1,4 +1,4 @@
-<i>**As of May 24, 2024, the Perfecto Jenkins plugin will be deprecated. Current plugin installation will continue to work, but going forward, Perfecto will no longer provide bug fixes and maintenance services for this plugin.** </br></i>
+<i>**Important: As of May 24, 2024, the Perfecto Jenkins plugin will be deprecated. Current plugin installation will continue to work, but going forward, Perfecto will no longer provide bug fixes and maintenance services for this plugin. As an alternative, you can create a Jenkins pipeline with Perfecto Connect. To learn more, see [Jenkins plugin](https://help.perfecto.io/perfecto-help/content/perfecto/integrations/jenkins_plugin.htm#) > Step-by-step instructions > 4 | Work with Advanced usage scenarios > Create a Perfecto Connect pipeline.** </br></i>
 
 
 <img src="https://github.com/PerfectoMobileSA/perfecto-plugin/blob/master/DOC/perfecto.jpg" height="75" width="300"/>
